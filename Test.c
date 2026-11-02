@@ -24,21 +24,53 @@ int main(void) {
 
         uint32_t instr = progr[pc >> 2];
         uint32_t opcode = instr & 0x7f;
-        uint32_t rd = (instr >> 7) & 0x01f;
-        uint32_t rs1 = (instr >> 15) & 0x01f;
-        uint32_t imm = (instr >> 20);
 
         switch (opcode) {
 
-            case 0x13:
-                reg[rd] = reg[rs1] + imm;
-                break;
+            case '011011':
+                type = "R-Type";
 
-            default:
-                printf("Opcode %u not yet implemented\n", opcode);
-                break;
-        }
+            case '0010011':
+                type = "I-Type";
+                uint32_t rd = (instr >> 7) & 0x01f;
+                uint32_t rs1 = (instr >> 15) & 0x01f;
+                uint32_t imm = (instr >> 20);
 
+                switch (func3){
+                    case 0x0: //ADD
+                        reg[rd] = reg[rs1] + imm;
+                        break;
+                    case 0x4:
+
+                    default:
+                        printf("Opcode %u not yet implemented\n", opcode);
+                        break;
+                }
+
+            case '0000011':
+                type = "I-Type-Load";
+            
+            case '0100011':
+                type = "S-Type";
+            
+            case '1100011':
+                type = "B-Type";
+            
+            case '1101111':
+                type = "J-Type";
+        
+            case '1100111':
+                type = "I-Type";
+            
+            case '0110111':
+                type = "U-Type";
+            
+            case '0010111':
+                type = "U-Type";
+            
+            case '1110011':
+                type = "I-Type";
+            }
         pc += 4; // One instruction is four bytes
 
         if ((pc >> 2) >=
