@@ -7,7 +7,7 @@
 int main(void) {
 
     uint32_t pc = 0;
-    uint32_t reg[4] = {0};
+    uint32_t reg[32] = {0};
 
     // Here the first program hard coded as an array
     uint32_t progr[3] = {
@@ -19,58 +19,252 @@ int main(void) {
 
     printf("Hello RISC-V World!\n");
 
+    // x0 needs to be 0 all the time
+    // Potential solution could be:
+    
+    // if (rd != 0) {
+    // reg[rd] = result;
+    // }
+
+
+
     // Simulation loop
     while (1) {
 
         uint32_t instr = progr[pc >> 2];
         uint32_t opcode = instr & 0x7f;
+        uint32_t rd = (instr >> 7) & 0x01f;
+        uint32_t rs1 = (instr >> 15) & 0x01f;
+        uint32_t rs2 = (instr >> 20) & 0x01f;
+        uint32_t func3 = (instr >> 12) & 0x07;
+        uint32_t func7 = (instr >> 25) & 0x7F;
+        uint32_t imm = (instr >> 20);
 
         switch (opcode) {
 
-            case '011011':
-                type = "R-Type";
-
-            case '0010011':
-                type = "I-Type";
-                uint32_t rd = (instr >> 7) & 0x01f;
-                uint32_t rs1 = (instr >> 15) & 0x01f;
-                uint32_t imm = (instr >> 20);
+            case 0x33: {
+                //"R-Type"
 
                 switch (func3){
-                    case 0x0: //ADD
-                        reg[rd] = reg[rs1] + imm;
+                    case 0x0: {
+                        switch(func7){
+                            case 0x00: {//ADD
+                                reg[rd] = reg[rs1] + reg[rs2];
+                                break;
+                            }
+                            case 0x20: {//SUB
+                                reg[rd] = reg[rs1] - reg[rs2];
+                                break;
+                            }
+                            default: {
+                                printf("Opcode %u and func3 %u and func7 %u not yet implemented\n", opcode, func3, func7);
+                                break;
+                            }
+                        }
                         break;
-                    case 0x4:
+                    }
 
-                    default:
+                    case 0x4: {//XOR
+                        switch(func7){
+                            case 0x00: {
+                                reg[rd] = reg[rs1] ^ reg[rs2];
+                                break;
+                            }
+
+                            default: {
+                                printf("Opcode %u and func3 %u and func7 %u not yet implemented\n", opcode, func3, func7);
+                                break;
+                            }
+                        }
+
+                        break;
+                    }
+
+                    case 0x6: {//OR
+                        switch(func7){
+                            case 0x00: {
+                                reg[rd] = reg[rs1] | reg[rs2];
+                                break;
+                            }
+
+                            default: {
+                                printf("Opcode %u and func3 %u and func7 %u not yet implemented\n", opcode, func3, func7);
+                                break;
+                            }
+                        }        
+
+                        break;
+                    }
+                    
+                    case 0x7: {//AND
+                        switch(func7){
+                            case 0x00: {
+                                reg[rd] = reg[rs1] & reg[rs2];
+                                break;
+                            }
+
+                            default: {
+                                printf("Opcode %u and func3 %u and func7 %u not yet implemented\n", opcode, func3, func7);
+                                break;
+                            }
+                        }        
+
+                        break;
+                    }
+                    
+                    case 0x1: {//Shift Left Logical
+                        switch(func7){
+                            case 0x00: {
+                                reg[rd] = reg[rs1] << reg[rs2];
+                                break;
+                            }
+
+                            default: {
+                                printf("Opcode %u and func3 %u and func7 %u not yet implemented\n", opcode, func3, func7);
+                                break;
+                            }
+                        }        
+
+                        break;
+                    }
+                    
+                    case 0x5: {
+                        switch(func7){
+                            case 0x00: {//Shift Right Logical 
+                                reg[rd] = reg[rs1] >> reg[rs2];
+                                break;
+                            }
+                            
+                            case 0x20: {//Shift Right Arith* (er ikke sikker på denne)
+                                reg[rd] = reg[rs1] >> reg[rs2];
+
+                                break;
+                            }
+
+                            default: {
+                                printf("Opcode %u and func3 %u and func7 %u not yet implemented\n", opcode, func3, func7);
+                                break;
+                            }
+                        }        
+
+                        break;
+                    }
+                    
+                    case 0x2: {//Set Less Than 
+                        switch(func7){
+                            case 0x00: {
+                                reg[rd] = ((int32_t)reg[rs1] < (int32_t)reg[rs2]) ? 1 : 0;
+                                break;
+                            }
+
+                            default: {
+                                printf("Opcode %u and func3 %u and func7 %u not yet implemented\n", opcode, func3, func7);
+                                break;
+                            }
+                        }        
+
+                        break;
+                    }
+
+                    case 0x3: {//Set Less Than (U)
+                        switch(func7){
+                            case 0x00: {
+                                reg[rd] = (reg[rs1] < reg[rs2])?1:0;
+                                break;
+                            }
+
+                            default: {
+                                printf("Opcode %u and func3 %u and func7 %u not yet implemented\n", opcode, func3, func7);
+                                break;
+                            }
+                        }        
+
+                        break;
+                    }
+
+                    default: {
                         printf("Opcode %u not yet implemented\n", opcode);
                         break;
+                    }
                 }
 
-            case '0000011':
-                type = "I-Type-Load";
-            
-            case '0100011':
-                type = "S-Type";
-            
-            case '1100011':
-                type = "B-Type";
-            
-            case '1101111':
-                type = "J-Type";
-        
-            case '1100111':
-                type = "I-Type";
-            
-            case '0110111':
-                type = "U-Type";
-            
-            case '0010111':
-                type = "U-Type";
-            
-            case '1110011':
-                type = "I-Type";
+                break;
             }
+
+            case 0x13: {
+                //"I-Type"
+
+                switch (func3){
+                    case 0x0: {//ADDI
+                        reg[rd] = reg[rs1] + imm;
+                        break;
+                    }
+
+                    case 0x4:{
+
+                        break;
+                    }
+
+                    default: {
+                        printf("Opcode %u not yet implemented\n", opcode);
+                        break;
+                    }
+                }
+
+                break;
+            }
+
+            case 0x03: {
+                //"I-Type-Load"
+
+                break;
+            }
+            
+            case 0x23: {
+                //"S-Type"
+
+                break;
+            }
+            
+            case 0x63: {
+                //"B-Type"
+
+                break;
+            }
+            
+            case 0x6F: {//jal
+                //"J-Type"
+
+                break;
+            }
+        
+            case 0x67: {//jalr
+                //"I-Type"
+
+                break;
+            }
+            
+            case 0x37: {//lui
+                //"U-Type"
+
+                break;
+            }
+
+            case 0x17: {//auipc
+                //"U-Type"
+
+                break;
+            }
+            
+            case 0x73: {//ecall
+                //"I-Type"
+
+                break;
+            }
+
+            break;
+        }
+        
         pc += 4; // One instruction is four bytes
 
         if ((pc >> 2) >=
