@@ -135,8 +135,8 @@ int main(void) {
                                 break;
                             }
                             
-                            case 0x20: {//Shift Right Arith* (er ikke sikker på denne)
-                                reg[rd] = reg[rs1] >> reg[rs2];
+                            case 0x20: {//Shift Right Arith* 
+                                reg[rd] = (uint32_t)((int32_t)reg[rs1] >> (reg[rs2]));
 
                                 break;
                             }
@@ -200,8 +200,58 @@ int main(void) {
                         break;
                     }
 
-                    case 0x4:{
+                    case 0x4:{//XOR immediate
+                        reg[rd] = reg[rs1] ^ imm;
+                        break;
+                    }
 
+                    case 0x6:{//OR immediate
+                        reg[rd] = reg[rs1] | imm;
+                        break;
+                    }
+
+                    case 0x7:{//AND immediate
+                        reg[rd] = reg[rs1] & imm;
+                        break;
+                    }
+
+                    case 0x1:{//Shift Left Logical Immediate
+                        if (func7 == 0x00) {
+                            reg[rd] = reg[rs1] << (imm & 0x1F);
+                        }
+                        else {
+                            printf("SLLI not valid\n");
+                        }
+                        break;
+                    }       
+
+                    case 0x5:{//Shift Right Immediate
+                        switch(func7){
+                            case 0x00: {//SRLI
+                                reg[rd] = reg[rs1] >> (imm & 0x1F);
+                                break;
+                            }
+
+                            case 0x20: {//SRAI
+                                reg[rd] = (uint32_t)((int32_t)reg[rs1] >> (imm & 0x1F));
+                                break;
+                            }
+
+                            default: {
+                                printf("Opcode %u and func3 %u and func7 %u not yet implemented\n", opcode, func3, func7);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+
+                    case 0x2:{//Set Less Than Immediate
+                        reg[rd] = ((int32_t)reg[rs1] < imm) ? 1 : 0;
+                        break;
+                    }
+
+                    case 0x3:{//Set Less Than Immediate Unsigned
+                        reg[rd] = (reg[rs1] < (uint32_t)imm) ? 1 : 0;
                         break;
                     }
 
