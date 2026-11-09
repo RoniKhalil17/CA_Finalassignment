@@ -17,7 +17,7 @@ test: $(TARGET)
 	./$(TARGET) $(TEST) $(OUTPUT)
 
 check: test
-	cmp $(OUTPUT) $(REF)
+	fc.exe /b $(OUTPUT) $(REF)
 
 clean:
 	rm -f $(TARGET) $(OUTPUT)
