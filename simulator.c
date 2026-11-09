@@ -224,22 +224,22 @@ int main(int argc, char *argv[]) {
 
                 switch (func3){
                     case 0x0: {//ADDI
-                        reg[rd] = reg[rs1] + imm;
+                        reg[rd] = reg[rs1] + (uint32_t)imm;
                         break;
                     }
 
                     case 0x4:{//XOR immediate
-                        reg[rd] = reg[rs1] ^ imm;
+                        reg[rd] = reg[rs1] ^ (uint32_t)imm;
                         break;
                     }
 
                     case 0x6:{//OR immediate
-                        reg[rd] = reg[rs1] | imm;
+                        reg[rd] = reg[rs1] | (uint32_t)imm;
                         break;
                     }
 
                     case 0x7:{//AND immediate
-                        reg[rd] = reg[rs1] & imm;
+                        reg[rd] = reg[rs1] & (uint32_t)imm;
                         break;
                     }
 
@@ -295,7 +295,7 @@ int main(int argc, char *argv[]) {
             case 0x03: {
                 //"I-Type-Load"
 
-                uint32_t addr = reg[rs1] + imm;
+                uint32_t addr = reg[rs1] + (uint32_t)imm;
                 uint32_t size = 1u << (func3 & 0x3); // 1, 2 or 4 bytes
                 if (!mem_ok(addr, size)) {
                     printf("Memory access out of bounds at address %u\n", addr);
@@ -346,7 +346,7 @@ int main(int argc, char *argv[]) {
                 //"S-Type"
 
                 int32_t s_imm = (((int32_t)instr >> 25) << 5) | (int32_t)rd; // imm[11:5] | imm[4:0]
-                uint32_t addr = reg[rs1] + s_imm;
+                uint32_t addr = reg[rs1] + (uint32_t)s_imm;
                 uint32_t size = 1u << (func3 & 0x3); // 1, 2 or 4 bytes
                 if (!mem_ok(addr, size)) {
                     printf("Memory access out of bounds at address %u\n", addr);
@@ -370,7 +370,7 @@ int main(int argc, char *argv[]) {
                         mem[addr]     = reg[rs2] & 0xFF;
                         mem[addr + 1] = (reg[rs2] >> 8) & 0xFF;
                         mem[addr + 2] = (reg[rs2] >> 16) & 0xFF;
-                        mem[addr + 3] = (reg[rs2] >> 24) & 0xFF;
+                        mem[addr + 3] = (uint8_t)((reg[rs2] >> 24) & 0xFF);
                         break;
                     }
 
@@ -433,7 +433,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 if (take) {
-                    next_pc = pc + b_imm;
+                    next_pc = pc + (uint32_t)b_imm;
                 }
 
                 break;
@@ -450,7 +450,7 @@ int main(int argc, char *argv[]) {
                 int32_t j_imm = (int32_t)(j_raw << 11) >> 11;
 
                 reg[rd] = pc + 4;       // Return address
-                next_pc = pc + j_imm;
+                next_pc = pc + (uint32_t)j_imm;
 
                 break;
             }
@@ -458,7 +458,7 @@ int main(int argc, char *argv[]) {
             case 0x67: {//jalr
                 //"I-Type"
 
-                uint32_t target = (reg[rs1] + imm) & ~1u; // Compute BEFORE writing rd
+                uint32_t target = (reg[rs1] + (uint32_t)imm) & ~1u; // Compute BEFORE writing rd
                 reg[rd] = pc + 4;                         // Return address
                 next_pc = target;
 
