@@ -6,6 +6,12 @@
 #define MEM_SIZE (1 << 20)
 uint8_t mem[MEM_SIZE] = {0};
 
+//Helper to check for bad address
+static int mem_ok(uint32_t addr, uint32_t size) {
+    return addr <= MEM_SIZE && size <= MEM_SIZE - addr;
+}
+
+
 int main(int argc, char *argv[]) {
 
     if (argc < 2) {
@@ -24,13 +30,13 @@ int main(int argc, char *argv[]) {
     uint32_t pc = 0;
     uint32_t reg[32] = {0};
 
-    // Here the first program hard coded as an array
+    /* Here the first program hard coded as an array
     uint32_t progr[3] = {
         // A minimal RISC-V assembler example
         0x00200093, // addi x1, x0, 2
         0x00300113, // addi x2, x0, 3
         0x002081b3, // add x3, x1, x2
-    };
+    }; */
 
     printf("Hello RISC-V World!\n");
 
@@ -137,7 +143,7 @@ int main(int argc, char *argv[]) {
                     case 0x1: {//Shift Left Logical
                         switch(func7){
                             case 0x00: {
-                                reg[rd] = reg[rs1] << reg[rs2];
+                                reg[rd] = reg[rs1] << (reg[rs2] & 0x1F);
                                 break;
                             }
 
@@ -153,12 +159,12 @@ int main(int argc, char *argv[]) {
                     case 0x5: {
                         switch(func7){
                             case 0x00: {//Shift Right Logical 
-                                reg[rd] = reg[rs1] >> reg[rs2];
+                                reg[rd] = reg[rs1] >> (reg[rs2] & 0x1F);
                                 break;
                             }
                             
                             case 0x20: {//Shift Right Arith* 
-                                reg[rd] = (uint32_t)((int32_t)reg[rs1] >> (reg[rs2]));
+                                reg[rd] = (uint32_t)((int32_t)reg[rs1] >> (reg[rs2] & 0x1F));
 
                                 break;
                             }
@@ -290,6 +296,12 @@ int main(int argc, char *argv[]) {
                 //"I-Type-Load"
 
                 uint32_t addr = reg[rs1] + imm;
+                uint32_t size = 1u << (func3 & 0x3); // 1, 2 or 4 bytes
+                if (!mem_ok(addr, size)) {
+                    printf("Memory access out of bounds at address %u\n", addr);
+                    running = 0;
+                    break;
+                }
 
                 switch (func3){
                     case 0x0: {//LB
@@ -335,6 +347,12 @@ int main(int argc, char *argv[]) {
 
                 int32_t s_imm = (((int32_t)instr >> 25) << 5) | (int32_t)rd; // imm[11:5] | imm[4:0]
                 uint32_t addr = reg[rs1] + s_imm;
+                uint32_t size = 1u << (func3 & 0x3); // 1, 2 or 4 bytes
+                if (!mem_ok(addr, size)) {
+                    printf("Memory access out of bounds at address %u\n", addr);
+                    running = 0;
+                    break;
+                }
 
                 switch (func3){
                     case 0x0: {//SB
@@ -486,7 +504,10 @@ int main(int argc, char *argv[]) {
                 break;
             }
 
-            break;
+            default: {
+                printf("Opcode %u not yet implemented\n", opcode);
+                break;
+            }
         }
         
         reg[0] = 0;    // x0 is always 0
