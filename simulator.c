@@ -4,7 +4,7 @@
 
 #define NO_ERR 0
 #define MEM_SIZE (1 << 20)
-uint8_t mem[MEM_SIZE] = {0};
+uint8_t mem[MEM_SIZE] = {0}; //Loaded memory get stored here
 
 //Helper to check for bad address
 static int mem_ok(uint32_t addr, uint32_t size) {
@@ -24,11 +24,11 @@ int main(int argc, char *argv[]) {
         printf("Could not open %s\n", argv[1]);
         return 1;
     }
-    size_t prog_size = fread(mem, 1, MEM_SIZE, in); // size in bytes
+    size_t prog_size = fread(mem, 1, MEM_SIZE, in); // read program from binary file and get size in bytes
     fclose(in);
 
-    uint32_t pc = 0;
-    uint32_t reg[32] = {0};
+    uint32_t pc = 0; // Program counter initialized to 0
+    uint32_t reg[32] = {0}; // Initialize all registers to 0
 
     /* Here the first program hard coded as an array
     uint32_t progr[3] = {
@@ -49,15 +49,12 @@ int main(int argc, char *argv[]) {
 
 
 
-    int running = 1;
+    int running = 1; // is program running, used to stop program
 
     // Simulation loop
     while (running) {
 
-        uint32_t instr = mem[pc]
-               | (mem[pc + 1] << 8)
-               | (mem[pc + 2] << 16)
-               | ((uint32_t)mem[pc + 3] << 24);
+        uint32_t instr = mem[pc] | (mem[pc + 1] << 8) | (mem[pc + 2] << 16) | ((uint32_t)mem[pc + 3] << 24);
         uint32_t opcode = instr & 0x7f;
         uint32_t rd = (instr >> 7) & 0x01f;
         uint32_t rs1 = (instr >> 15) & 0x01f;
@@ -316,11 +313,8 @@ int main(int argc, char *argv[]) {
                     }
 
                     case 0x2: {//LW
-                        reg[rd] = mem[addr]
-                        | (mem[addr + 1] << 8)
-                        | (mem[addr + 2] << 16)
-                        | ((uint32_t)mem[addr + 3] << 24);
-                    break;
+                        reg[rd] = mem[addr] | (mem[addr + 1] << 8) | (mem[addr + 2] << 16) | ((uint32_t)mem[addr + 3] << 24);
+                        break;
                     }
 
                     case 0x4: {//LBU
@@ -443,10 +437,7 @@ int main(int argc, char *argv[]) {
                 //"J-Type"
 
                 // imm[20] | imm[10:1] | imm[11] | imm[19:12], then sign-extend from bit 20
-                uint32_t j_raw = (((instr >> 31) & 0x1)   << 20)
-                   | (((instr >> 12) & 0xFF)  << 12)
-                   | (((instr >> 20) & 0x1)   << 11)
-                   | (((instr >> 21) & 0x3FF) << 1);
+                uint32_t j_raw = (((instr >> 31) & 0x1)   << 20) | (((instr >> 12) & 0xFF)  << 12) | (((instr >> 20) & 0x1)   << 11) | (((instr >> 21) & 0x3FF) << 1);
                 int32_t j_imm = (int32_t)(j_raw << 11) >> 11;
 
                 reg[rd] = pc + 4;       // Return address
