@@ -1,9 +1,8 @@
-
 #include <stdio.h>
 #include <stdint.h>
 
 #define NO_ERR 0
-#define MEM_SIZE (1 << 20)
+#define MEM_SIZE (1 << 20) // 1 MB
 uint8_t mem[MEM_SIZE] = {0}; //Loaded memory get stored here
 
 //Helper to check for bad address
@@ -381,10 +380,7 @@ int main(int argc, char *argv[]) {
                 //"B-Type"
 
                 // imm[12] | imm[10:5] | imm[4:1] | imm[11], then sign-extend from bit 12
-                uint32_t b_raw = (((instr >> 31) & 0x1)  << 12)
-                   | (((instr >> 7)  & 0x1)  << 11)
-                   | (((instr >> 25) & 0x3F) << 5)
-                   | (((instr >> 8)  & 0xF)  << 1);
+                uint32_t b_raw = (((instr >> 31) & 0x1)  << 12) | (((instr >> 7)  & 0x1)  << 11) | (((instr >> 25) & 0x3F) << 5) | (((instr >> 8)  & 0xF)  << 1);
                 int32_t b_imm = (int32_t)(b_raw << 19) >> 19;
 
                 int take = 0;
