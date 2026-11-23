@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
         uint32_t func7 = (instr >> 25) & 0x7F;
         int32_t imm = (int32_t)instr >> 20;
 
-        uint32_t next_pc = pc + 4; // Default go to the next instruction
+        uint32_t next_pc = pc + 4; // Default go to the next instruction (later if a jmp or branch is taken next_pc is updated)
 
         switch (opcode) {
 
@@ -507,7 +507,7 @@ int main(int argc, char *argv[]) {
         for (size_t i = 0;
              i < (sizeof(reg) / sizeof(reg[0]));
              ++i) {
-            printf("%u ", reg[i]);
+            printf("%x ", reg[i]);
         }
 
         printf("\n");
