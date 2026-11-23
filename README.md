@@ -6,15 +6,7 @@ values to an output file.
 
 ## Requirements
 
-- Ubuntu (x64)
-- `gcc`
-- `make`
-
-Install them with:
-
-```bash
-sudo apt install build-essential
-```
+- Ubuntu
 
 ## Files
 
@@ -35,22 +27,15 @@ This builds the executable `simulator`.
 
 ## Run
 
-```bash
-./simulator program.bin [output.bin]
-```
-
-- `program.bin` is the RISC-V program to run (required).
-- `output.bin` is the file the final register values are written to (optional, default is `output.bin`).
-
-The simulator prints the register values after each instruction, followed by the final
-register values in hexadecimal. It also writes the binary dump of registers x0 to x31, in
-that order, to the output file.
-
-Or run a test through the Makefile:
+Run a test through the Makefile (in this example the test "add negative" from task 1 is ran):
 
 ```bash
 make test TEST=tests/task1/addneg.bin
 ```
+
+The simulator prints the register values after each instruction, followed by the final
+register values in hexadecimal. It also writes the binary dump of registers x0 to x31, in
+that order, to the output file.
 
 ## Test
 
