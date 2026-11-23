@@ -436,7 +436,7 @@ int main(int argc, char *argv[]) {
                 uint32_t j_raw = (((instr >> 31) & 0x1)   << 20) | (((instr >> 12) & 0xFF)  << 12) | (((instr >> 20) & 0x1)   << 11) | (((instr >> 21) & 0x3FF) << 1);
                 int32_t j_imm = (int32_t)(j_raw << 11) >> 11;
 
-                reg[rd] = pc + 4;       // Return address
+                reg[rd] = pc + 4;               // Return address
                 next_pc = pc + (uint32_t)j_imm;
 
                 break;
@@ -446,7 +446,7 @@ int main(int argc, char *argv[]) {
                 //"I-Type"
 
                 uint32_t target = (reg[rs1] + (uint32_t)imm) & ~1u; // Compute BEFORE writing rd
-                reg[rd] = pc + 4;                         // Return address
+                reg[rd] = pc + 4;                                   // Return address
                 next_pc = target;
 
                 break;
